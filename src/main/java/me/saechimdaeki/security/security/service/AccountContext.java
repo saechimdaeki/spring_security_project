@@ -1,11 +1,14 @@
 package me.saechimdaeki.security.security.service;
 
+import lombok.Getter;
 import me.saechimdaeki.security.domain.Account;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 import java.util.Collection;
 
+
+@Getter
 public class AccountContext extends User {
 
 
@@ -19,4 +22,6 @@ public class AccountContext extends User {
 
         this.account = account;
     }
+
+
 }

@@ -3,10 +3,12 @@ package me.saechimdaeki.security.security.config;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.saechimdaeki.security.repository.UserRepository;
+import me.saechimdaeki.security.security.provider.CustomAuthenticationProvider;
 import me.saechimdaeki.security.security.service.CustomUserDetails;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -24,9 +26,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final CustomUserDetails userDetailsService;
 
+
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService);
+//        auth.userDetailsService(userDetailsService);
+        auth.authenticationProvider(authenticationProvider());
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(){
+        return new CustomAuthenticationProvider(userDetailsService, passwordEncoder());
     }
 
     @Override
