@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.saechimdaeki.security.repository.UserRepository;
 import me.saechimdaeki.security.security.common.FormAuthenticationDetailsSource;
+import me.saechimdaeki.security.security.handler.CustomAuthenticationHandler;
 import me.saechimdaeki.security.security.provider.CustomAuthenticationProvider;
 import me.saechimdaeki.security.security.service.CustomUserDetails;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -27,7 +28,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final CustomUserDetails userDetailsService;
     private final FormAuthenticationDetailsSource authenticationDetailsSource;
-
+    private final CustomAuthenticationHandler customAuthenticationHandler;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -65,6 +66,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .loginProcessingUrl("/login_proc")
             .authenticationDetailsSource(authenticationDetailsSource)
             .defaultSuccessUrl("/",true)
+            .successHandler(customAuthenticationHandler)
             .permitAll()
         ;
     }

@@ -2,3 +2,8 @@
 .DS_Store
 .gradle
 .out
+out/production/classes/me/saechimdaeki/security/security/common/FormAuthenticationDetailsSource.class
+out/production/classes/me/saechimdaeki/security/security/common/FormWebAuthenticationDetails.class
+out/production/classes/me/saechimdaeki/security/security/config/SecurityConfig.class
+out/production/classes/me/saechimdaeki/security/security/provider/CustomAuthenticationProvider.class
+out/production/resources/templates/user/login/login.html
