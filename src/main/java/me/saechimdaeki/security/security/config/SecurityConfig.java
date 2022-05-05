@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.saechimdaeki.security.repository.UserRepository;
 import me.saechimdaeki.security.security.common.FormAuthenticationDetailsSource;
+import me.saechimdaeki.security.security.handler.CustomAccessDeniedHandler;
 import me.saechimdaeki.security.security.handler.CustomAuthenticationFailureHandler;
 import me.saechimdaeki.security.security.handler.CustomAuthenticationHandler;
 import me.saechimdaeki.security.security.provider.CustomAuthenticationProvider;
@@ -20,6 +21,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 @Configuration
@@ -57,7 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-            .antMatchers("/","/users","user/login/**","/login?error*","/user/login?error*").permitAll()
+            .antMatchers("/","/users","user/login/**","/login*").permitAll()
             .antMatchers("/mypage").hasRole("USER")
             .antMatchers("/messages").hasRole("MANAGER")
             .antMatchers("/config").hasRole("ADMIN")
@@ -71,6 +73,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .successHandler(customAuthenticationHandler)
             .failureHandler(customAuthenticationFailureHandler)
             .permitAll()
-        ;
+        .and().exceptionHandling()
+            .accessDeniedHandler(accessDeniedHandler());
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler(){
+        CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
+        accessDeniedHandler.setErrorPage("/denied");
+        return accessDeniedHandler;
+
     }
 }
