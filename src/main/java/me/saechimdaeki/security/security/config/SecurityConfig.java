@@ -83,7 +83,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .permitAll()
         .and().exceptionHandling()
             .accessDeniedHandler(accessDeniedHandler())
+        .and()
+            .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
         ;
+        http.csrf().disable();
     }
 
     @Bean
@@ -94,5 +97,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     }
 
-
+    @Bean
+    public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() throws Exception {
+        AjaxLoginProcessingFilter ajaxLoginProcessingFilter = new AjaxLoginProcessingFilter();
+        ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManagerBean());
+        return ajaxLoginProcessingFilter;
+    }
 }
