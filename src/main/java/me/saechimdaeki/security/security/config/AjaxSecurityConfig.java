@@ -58,6 +58,17 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
             .accessDeniedHandler(ajaxAccessDeniedHandler());
 
         http.csrf().disable();
+
+        customConfigureAjax(http);
+    }
+
+    private void customConfigureAjax(HttpSecurity http) throws Exception {
+
+            http.apply(new AjaxLoginConfigurer<>())
+                .successHandlerAjax(authenticationSuccessHandler())
+                .failureHandlerAjax(authenticationFailureHandler())
+                .setAuthenticationManager(authenticationManagerBean())
+                .loginProcessingUrl("/api/login");
     }
 
     @Bean
