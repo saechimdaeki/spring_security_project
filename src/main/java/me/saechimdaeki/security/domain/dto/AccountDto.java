@@ -1,28 +1,22 @@
-package me.saechimdaeki.security.domain;
+package me.saechimdaeki.security.domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountDto {
 
-    private String userName;
-
-    private String password;
-
+    private String id;
+    private String username;
     private String email;
-
     private int age;
-
-    private String role;
-
-
-    public void changePassword(String password){
-        this.password= password;
-    }
+    private String password;
+    private List<String> roles;
 }

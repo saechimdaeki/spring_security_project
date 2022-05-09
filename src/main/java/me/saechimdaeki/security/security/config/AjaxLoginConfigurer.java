@@ -39,12 +39,12 @@ public final class AjaxLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
         getAuthenticationFilter().setAuthenticationFailureHandler(failureHandler);
 
         SessionAuthenticationStrategy sessionAuthenticationStrategy = http
-                .getSharedObject(SessionAuthenticationStrategy.class);
+            .getSharedObject(SessionAuthenticationStrategy.class);
         if (sessionAuthenticationStrategy != null) {
             getAuthenticationFilter().setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
         }
         RememberMeServices rememberMeServices = http
-                .getSharedObject(RememberMeServices.class);
+            .getSharedObject(RememberMeServices.class);
         if (rememberMeServices != null) {
             getAuthenticationFilter().setRememberMeServices(rememberMeServices);
         }

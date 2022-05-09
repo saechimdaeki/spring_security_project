@@ -1,49 +1,45 @@
 package me.saechimdaeki.security.security.provider;
 
-import lombok.RequiredArgsConstructor;
-import me.saechimdaeki.security.security.common.FormWebAuthenticationDetails;
+import lombok.extern.slf4j.Slf4j;
 import me.saechimdaeki.security.security.service.AccountContext;
-import me.saechimdaeki.security.security.service.CustomUserDetails;
 import me.saechimdaeki.security.security.token.AjaxAuthenticationToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.transaction.Transactional;
+
+@Slf4j
 public class AjaxAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
-    private CustomUserDetails userDetailsService;
+    private UserDetailsService userDetailsService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    PasswordEncoder passwordEncoder;
 
+    public AjaxAuthenticationProvider(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
+    @Transactional
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-        String username = authentication.getName();
-        String password = (String)authentication.getCredentials();
+        String loginId = authentication.getName();
+        String password = (String) authentication.getCredentials();
 
-        AccountContext accountContext = (AccountContext) userDetailsService.loadUserByUsername(username);
+        AccountContext accountContext = (AccountContext)userDetailsService.loadUserByUsername(loginId);
 
-        if(!passwordEncoder.matches(password, accountContext.getAccount().getPassword())){
-            throw new BadCredentialsException("BadCredentials Exception!!!");
-        }
-        Object details = authentication.getDetails();//
-
-        String secretKey = ( (FormWebAuthenticationDetails) authentication.getDetails() ).getSecretKey();
-//        FormWebAuthenticationDetails formWebAuthenticationDetails = (FormWebAuthenticationDetails)authentication.getDetails();
-//        String secretKey = formWebAuthenticationDetails.getSecretKey();
-        if(!"secret".equals(secretKey)){
-            throw new IllegalArgumentException("Invalid Secret");
+        if (!passwordEncoder.matches(password, accountContext.getPassword())) {
+            throw new BadCredentialsException("Invalid password");
         }
 
-        return new AjaxAuthenticationToken(accountContext.getAccount(), null , accountContext.getAuthorities());
+        return new AjaxAuthenticationToken(accountContext.getAccount(), null, accountContext.getAuthorities());
     }
 
     @Override
@@ -51,3 +47,4 @@ public class AjaxAuthenticationProvider implements AuthenticationProvider {
         return authentication.equals(AjaxAuthenticationToken.class);
     }
 }
+

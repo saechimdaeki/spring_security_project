@@ -1,6 +1,5 @@
 package me.saechimdaeki.security.security.common;
 
-import lombok.Getter;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 import javax.servlet.http.HttpServletRequest;

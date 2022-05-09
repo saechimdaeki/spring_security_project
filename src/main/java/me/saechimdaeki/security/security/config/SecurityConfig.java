@@ -1,16 +1,21 @@
 package me.saechimdaeki.security.security.config;
 
-import lombok.RequiredArgsConstructor;
-import me.saechimdaeki.security.security.common.FormAuthenticationDetailsSource;
-import me.saechimdaeki.security.security.filter.AjaxLoginProcessingFilter;
-import me.saechimdaeki.security.security.handlers.CustomAccessDeniedHandler;
-import me.saechimdaeki.security.security.handlers.CustomAuthenticationHandler;
-import me.saechimdaeki.security.security.provider.CustomAuthenticationProvider;
-import me.saechimdaeki.security.security.service.CustomUserDetails;
+import lombok.extern.slf4j.Slf4j;
+import me.saechimdaeki.security.security.common.FormWebAuthenticationDetailsSource;
+import me.saechimdaeki.security.security.handlers.AjaxAuthenticationFailureHandler;
+import me.saechimdaeki.security.security.handlers.AjaxAuthenticationSuccessHandler;
+import me.saechimdaeki.security.security.handlers.FormAccessDeniedHandler;
+import me.saechimdaeki.security.security.metadatasource.UrlFilterInvocationSecurityMetadatsSource;
+import me.saechimdaeki.security.security.provider.AjaxAuthenticationProvider;
+import me.saechimdaeki.security.security.provider.FormAuthenticationProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
+import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.AccessDecisionVoter;
+import org.springframework.security.access.vote.AffirmativeBased;
+import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -21,27 +26,38 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+
+import java.util.Arrays;
+import java.util.List;
+
+
 
 @Configuration
 @EnableWebSecurity
-@Order(1)
-@RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    @Autowired
+    private FormWebAuthenticationDetailsSource formWebAuthenticationDetailsSource;
+    @Autowired
+    private AuthenticationSuccessHandler formAuthenticationSuccessHandler;
+    @Autowired
+    private AuthenticationFailureHandler formAuthenticationFailureHandler;
 
-    private final CustomUserDetails userDetailsService;
-    private final FormAuthenticationDetailsSource authenticationDetailsSource;
-    private final CustomAuthenticationHandler customAuthenticationHandler;
-    private final AuthenticationFailureHandler customAuthenticationFailureHandler;
-
-
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(userDetailsService);
         auth.authenticationProvider(authenticationProvider());
+        auth.authenticationProvider(ajaxAuthenticationProvider());
     }
 
     @Override
@@ -49,58 +65,102 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-    @Bean
-    public AuthenticationProvider authenticationProvider(){
-        return new CustomAuthenticationProvider(userDetailsService, passwordEncoder());
-    }
-
     @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-            .antMatchers("/","/users","user/login/**","/login*").permitAll()
+    protected void configure(final HttpSecurity http) throws Exception {
+        http
+            .authorizeRequests()
             .antMatchers("/mypage").hasRole("USER")
             .antMatchers("/messages").hasRole("MANAGER")
             .antMatchers("/config").hasRole("ADMIN")
+            .antMatchers("/**").permitAll()
             .anyRequest().authenticated()
-
             .and()
             .formLogin()
             .loginPage("/login")
             .loginProcessingUrl("/login_proc")
-            .authenticationDetailsSource(authenticationDetailsSource)
-            .successHandler(customAuthenticationHandler)
-            .failureHandler(customAuthenticationFailureHandler)
+            .authenticationDetailsSource(formWebAuthenticationDetailsSource)
+            .successHandler(formAuthenticationSuccessHandler)
+            .failureHandler(formAuthenticationFailureHandler)
             .permitAll()
-        .and().exceptionHandling()
+            .and()
+            .exceptionHandling()
+//                .authenticationEntryPoint(new AjaxLoginAuthenticationEntryPoint())
+            .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
+            .accessDeniedPage("/denied")
             .accessDeniedHandler(accessDeniedHandler())
-        .and()
-            .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
+//        .and()
+//                .addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor.class)
         ;
+
         http.csrf().disable();
+
+        customConfigurer(http);
+    }
+
+    private void customConfigurer(HttpSecurity http) throws Exception {
+        http
+            .apply(new AjaxLoginConfigurer<>())
+            .successHandlerAjax(ajaxAuthenticationSuccessHandler())
+            .failureHandlerAjax(ajaxAuthenticationFailureHandler())
+            .loginProcessingUrl("/api/login")
+            .setAuthenticationManager(authenticationManagerBean());
     }
 
     @Bean
-    public AccessDeniedHandler accessDeniedHandler(){
-        CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
-        accessDeniedHandler.setErrorPage("/denied");
-        return accessDeniedHandler;
-
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
-    public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() throws Exception {
-        AjaxLoginProcessingFilter ajaxLoginProcessingFilter = new AjaxLoginProcessingFilter();
-        ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManagerBean());
-        return ajaxLoginProcessingFilter;
+    public AuthenticationProvider authenticationProvider(){
+        return new FormAuthenticationProvider(passwordEncoder());
     }
+
+    @Bean
+    public AuthenticationProvider ajaxAuthenticationProvider(){
+        return new AjaxAuthenticationProvider(passwordEncoder());
+    }
+
+    @Bean
+    public AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler(){
+        return new AjaxAuthenticationSuccessHandler();
+    }
+
+    @Bean
+    public AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler(){
+        return new AjaxAuthenticationFailureHandler();
+    }
+
+    public AccessDeniedHandler accessDeniedHandler() {
+        FormAccessDeniedHandler commonAccessDeniedHandler = new FormAccessDeniedHandler();
+        commonAccessDeniedHandler.setErrorPage("/denied");
+        return commonAccessDeniedHandler;
+    }
+
+    @Bean
+    public FilterSecurityInterceptor customFilterSecurityInterceptor() throws Exception {
+
+        FilterSecurityInterceptor filterSecurityInterceptor = new FilterSecurityInterceptor();
+        filterSecurityInterceptor.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource());
+        filterSecurityInterceptor.setAccessDecisionManager(affirmativeBased());
+        filterSecurityInterceptor.setAuthenticationManager(authenticationManagerBean());
+        return filterSecurityInterceptor;
+    }
+
+    private AccessDecisionManager affirmativeBased() {
+        AffirmativeBased affirmativeBased = new AffirmativeBased(getAccessDecistionVoters());
+        return affirmativeBased;
+    }
+
+    private List<AccessDecisionVoter<?>> getAccessDecistionVoters() {
+        return Arrays.asList(new RoleVoter());
+    }
+
+    @Bean
+    public FilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() {
+        return new UrlFilterInvocationSecurityMetadatsSource();
+    }
+
+
 }
+

@@ -1,42 +1,39 @@
 package me.saechimdaeki.security.domain;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
+@Data
+@ToString(exclude = {"userRoles"})
+@Builder
+@EqualsAndHashCode(of = "id")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Account implements Serializable {
 
-
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
 
-    private String userName;
+    @Column
+    private String username;
 
-    private String password;
-
+    @Column
     private String email;
 
+    @Column
     private int age;
 
-    private String role;
+    @Column
+    private String password;
 
-    private Account(String userName, String password, String email, int age, String role) {
-        this.userName = userName;
-        this.password = password;
-        this.email = email;
-        this.age = age;
-        this.role = role;
-    }
-
-    public static Account createNewAccount(AccountDto accountDto){
-        return new Account(accountDto.getUserName(), accountDto.getPassword(), accountDto.getEmail(), accountDto.getAge(), accountDto.getRole());
-    }
+    @ManyToMany(fetch = FetchType.LAZY, cascade={CascadeType.ALL})
+    @JoinTable(name = "account_roles", joinColumns = { @JoinColumn(name = "account_id") }, inverseJoinColumns = {
+        @JoinColumn(name = "role_id") })
+    private Set<Role> userRoles = new HashSet<>();
 }
