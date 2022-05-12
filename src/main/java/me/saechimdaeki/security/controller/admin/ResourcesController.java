@@ -5,6 +5,7 @@ import me.saechimdaeki.security.domain.Resources;
 import me.saechimdaeki.security.domain.Role;
 import me.saechimdaeki.security.domain.dto.ResourcesDto;
 import me.saechimdaeki.security.repository.RoleRepository;
+import me.saechimdaeki.security.security.metadatasource.UrlFilterInvocationSecurityMetadatsSource;
 import me.saechimdaeki.security.service.ResourcesService;
 import me.saechimdaeki.security.service.RoleService;
 import org.modelmapper.ModelMapper;
@@ -31,6 +32,9 @@ public class ResourcesController {
 	@Autowired
 	private RoleService roleService;
 
+	@Autowired
+	private UrlFilterInvocationSecurityMetadatsSource filterInvocationSecurityMetadatsSource;
+
 	@GetMapping(value="/admin/resources")
 	public String getResources(Model model) throws Exception {
 
@@ -51,6 +55,7 @@ public class ResourcesController {
 		resources.setRoleSet(roles);
 
 		resourcesService.createResources(resources);
+		filterInvocationSecurityMetadatsSource.reload();
 
 		return "redirect:/admin/resources";
 	}
@@ -89,6 +94,7 @@ public class ResourcesController {
 
 		Resources resources = resourcesService.getResources(Long.valueOf(id));
 		resourcesService.deleteResources(Long.valueOf(id));
+		filterInvocationSecurityMetadatsSource.reload();
 
 		return "redirect:/admin/resources";
 	}
