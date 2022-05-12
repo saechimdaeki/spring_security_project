@@ -7,3 +7,4 @@ out/production/classes/me/saechimdaeki/security/security/common/FormWebAuthentic
 out/production/classes/me/saechimdaeki/security/security/config/SecurityConfig.class
 out/production/classes/me/saechimdaeki/security/security/provider/CustomAuthenticationProvider.class
 out/production/resources/templates/user/login/login.html
+*.class

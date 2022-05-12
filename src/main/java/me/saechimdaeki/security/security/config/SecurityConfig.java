@@ -11,6 +11,7 @@ import me.saechimdaeki.security.security.metadatasource.UrlFilterInvocationSecur
 import me.saechimdaeki.security.security.provider.AjaxAuthenticationProvider;
 import me.saechimdaeki.security.security.provider.FormAuthenticationProvider;
 import me.saechimdaeki.security.security.service.SecurityResourceService;
+import me.saechimdaeki.security.security.voter.IpAddressVoter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -167,8 +168,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private List<AccessDecisionVoter<?>> getAccessDecistionVoters() {
         
         List<AccessDecisionVoter<? extends Object>> accessDecisionVoters = new ArrayList<>();
+        accessDecisionVoters.add(new IpAddressVoter(securityResourceService));
         accessDecisionVoters.add(roleVoter());
-        
+
         return accessDecisionVoters;
     }
 
