@@ -22,7 +22,7 @@ import java.util.Set;
 
 @Controller
 public class ResourcesController {
-	
+
 	@Autowired
 	private ResourcesService resourcesService;
 
@@ -33,7 +33,7 @@ public class ResourcesController {
 	private RoleService roleService;
 
 	@Autowired
-	private UrlFilterInvocationSecurityMetadatsSource filterInvocationSecurityMetadatsSource;
+	private UrlFilterInvocationSecurityMetadatsSource urlSecurityMetadataSource;
 
 	@GetMapping(value="/admin/resources")
 	public String getResources(Model model) throws Exception {
@@ -55,7 +55,7 @@ public class ResourcesController {
 		resources.setRoleSet(roles);
 
 		resourcesService.createResources(resources);
-		filterInvocationSecurityMetadatsSource.reload();
+		urlSecurityMetadataSource.reload();
 
 		return "redirect:/admin/resources";
 	}
@@ -79,7 +79,7 @@ public class ResourcesController {
 	public String getResources(@PathVariable String id, Model model) throws Exception {
 
 		List<Role> roleList = roleService.getRoles();
-        model.addAttribute("roleList", roleList);
+		model.addAttribute("roleList", roleList);
 		Resources resources = resourcesService.getResources(Long.valueOf(id));
 
 		ModelMapper modelMapper = new ModelMapper();
@@ -94,7 +94,7 @@ public class ResourcesController {
 
 		Resources resources = resourcesService.getResources(Long.valueOf(id));
 		resourcesService.deleteResources(Long.valueOf(id));
-		filterInvocationSecurityMetadatsSource.reload();
+		urlSecurityMetadataSource.reload();
 
 		return "redirect:/admin/resources";
 	}

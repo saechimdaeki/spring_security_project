@@ -3,6 +3,7 @@ package me.saechimdaeki.security.security.config;
 import lombok.extern.slf4j.Slf4j;
 import me.saechimdaeki.security.security.common.FormWebAuthenticationDetailsSource;
 import me.saechimdaeki.security.security.factory.UrlResourcesMapFactoryBean;
+import me.saechimdaeki.security.security.filter.PermitAllFilter;
 import me.saechimdaeki.security.security.handlers.AjaxAuthenticationFailureHandler;
 import me.saechimdaeki.security.security.handlers.AjaxAuthenticationSuccessHandler;
 import me.saechimdaeki.security.security.handlers.FormAccessDeniedHandler;
@@ -55,6 +56,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private SecurityResourceService securityResourceService;
 
+    private String[] permitAllResources = {"/","/login","/user/login/**"};
+
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
@@ -94,8 +97,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
             .accessDeniedPage("/denied")
             .accessDeniedHandler(accessDeniedHandler())
-//        .and()
-//                .addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor.class)
+        .and()
+                .addFilterAt(customFilterSecurityInterceptor(), FilterSecurityInterceptor.class)
         ;
 
         http.csrf().disable();
@@ -144,13 +147,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public FilterSecurityInterceptor customFilterSecurityInterceptor() throws Exception {
+    public PermitAllFilter customFilterSecurityInterceptor() throws Exception {
 
-        FilterSecurityInterceptor filterSecurityInterceptor = new FilterSecurityInterceptor();
-        filterSecurityInterceptor.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource());
-        filterSecurityInterceptor.setAccessDecisionManager(affirmativeBased());
-        filterSecurityInterceptor.setAuthenticationManager(authenticationManagerBean());
-        return filterSecurityInterceptor;
+        PermitAllFilter permitAllFilter = new PermitAllFilter(permitAllResources);
+        permitAllFilter.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource());
+        permitAllFilter.setAccessDecisionManager(affirmativeBased());
+        permitAllFilter.setAuthenticationManager(authenticationManagerBean());
+        return permitAllFilter;
     }
 
     private AccessDecisionManager affirmativeBased() {
