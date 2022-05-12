@@ -1,10 +1,8 @@
-package me.saechimdaeki.security.service.impl;
+package me.saechimdaeki.security.security.service.impl;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.saechimdaeki.security.domain.Resources;
-import me.saechimdaeki.security.repository.ResourcesRepository;
-import me.saechimdaeki.security.service.ResourcesService;
+import me.saechimdaeki.security.security.service.ResourcesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;

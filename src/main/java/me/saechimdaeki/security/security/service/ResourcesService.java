@@ -1,4 +1,4 @@
-package me.saechimdaeki.security.service;
+package me.saechimdaeki.security.security.service;
 
 import me.saechimdaeki.security.domain.Resources;
 

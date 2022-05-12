@@ -1,4 +1,4 @@
-package me.saechimdaeki.security.service.impl;
+package me.saechimdaeki.security.security.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import me.saechimdaeki.security.domain.Account;
@@ -6,7 +6,7 @@ import me.saechimdaeki.security.domain.Role;
 import me.saechimdaeki.security.domain.dto.AccountDto;
 import me.saechimdaeki.security.repository.RoleRepository;
 import me.saechimdaeki.security.repository.UserRepository;
-import me.saechimdaeki.security.service.UserService;
+import me.saechimdaeki.security.security.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 

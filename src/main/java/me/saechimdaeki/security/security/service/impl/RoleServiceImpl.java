@@ -1,9 +1,9 @@
-package me.saechimdaeki.security.service.impl;
+package me.saechimdaeki.security.security.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import me.saechimdaeki.security.domain.Role;
 import me.saechimdaeki.security.repository.RoleRepository;
-import me.saechimdaeki.security.service.RoleService;
+import me.saechimdaeki.security.security.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

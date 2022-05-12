@@ -1,6 +1,6 @@
 package me.saechimdaeki.security.security.metadatasource;
 
-import me.saechimdaeki.security.service.SecurityResourceService;
+import me.saechimdaeki.security.security.service.SecurityResourceService;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;

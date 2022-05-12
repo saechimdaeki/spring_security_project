@@ -2,7 +2,7 @@ package me.saechimdaeki.security.controller.admin;
 
 import me.saechimdaeki.security.domain.Role;
 import me.saechimdaeki.security.domain.dto.RoleDto;
-import me.saechimdaeki.security.service.RoleService;
+import me.saechimdaeki.security.security.service.RoleService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

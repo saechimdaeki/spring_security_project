@@ -3,22 +3,17 @@ package me.saechimdaeki.security.controller.user;
 import me.saechimdaeki.security.domain.Account;
 import me.saechimdaeki.security.domain.dto.AccountDto;
 import me.saechimdaeki.security.repository.RoleRepository;
-import me.saechimdaeki.security.service.UserService;
+import me.saechimdaeki.security.security.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 @Controller
 public class UserController {
