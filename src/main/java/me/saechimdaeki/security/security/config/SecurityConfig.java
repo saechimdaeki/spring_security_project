@@ -2,12 +2,15 @@ package me.saechimdaeki.security.security.config;
 
 import lombok.extern.slf4j.Slf4j;
 import me.saechimdaeki.security.security.common.FormWebAuthenticationDetailsSource;
+import me.saechimdaeki.security.security.factory.UrlResourcesMapFactoryBean;
 import me.saechimdaeki.security.security.handlers.AjaxAuthenticationFailureHandler;
 import me.saechimdaeki.security.security.handlers.AjaxAuthenticationSuccessHandler;
 import me.saechimdaeki.security.security.handlers.FormAccessDeniedHandler;
 import me.saechimdaeki.security.security.metadatasource.UrlFilterInvocationSecurityMetadatsSource;
 import me.saechimdaeki.security.security.provider.AjaxAuthenticationProvider;
 import me.saechimdaeki.security.security.provider.FormAuthenticationProvider;
+import me.saechimdaeki.security.service.SecurityResourceService;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -48,6 +51,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private AuthenticationSuccessHandler formAuthenticationSuccessHandler;
     @Autowired
     private AuthenticationFailureHandler formAuthenticationFailureHandler;
+
+    @Autowired
+    private SecurityResourceService securityResourceService;
 
     @Override
     public void configure(WebSecurity web) throws Exception {
@@ -157,10 +163,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public FilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() {
-        return new UrlFilterInvocationSecurityMetadatsSource();
+    public FilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() throws Exception {
+        return new UrlFilterInvocationSecurityMetadatsSource(urlResourcesMapFactoryBean().getObject());
     }
 
+    private UrlResourcesMapFactoryBean urlResourcesMapFactoryBean() {
+
+        UrlResourcesMapFactoryBean urlResourcesMapFactoryBean = new UrlResourcesMapFactoryBean();
+        urlResourcesMapFactoryBean.setSecurityResourceService(securityResourceService);
+
+        return urlResourcesMapFactoryBean;
+
+    }
 
 }
 
