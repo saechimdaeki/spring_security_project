@@ -11,23 +11,37 @@ import java.security.Principal;
 
 @Controller
 public class AopSecurityController {
-
     @Autowired
     private AopMethodService aopMethodService;
+    @Autowired
+    private AopPointcutService aopPointcutService;
 
     @GetMapping("/preAuthorize")
-    @PreAuthorize("hasRole('ROLE_USER') and #accountDto.username == principal.username")
-    public String preAuthorize(AccountDto accountDto, Model model, Principal principal){
+    @PreAuthorize("hasRole('ROLE_USER') AND #account.username == principal.username")
+    public String preAuthorize(AccountDto account, Model model){
 
-        model.addAttribute("method","Success PreAuthorize");
+        System.out.println("account.username = " + account.getUsername() + "");
+        model.addAttribute("method", "Success @PreAuthorize");
 
         return "aop/method";
     }
 
     @GetMapping("/methodSecured")
     public String methodSecured(Model model){
+
         aopMethodService.methodSecured();
-        model.addAttribute("method","Success MethodSecured");
+        model.addAttribute("method", "Success MethodSecured");
+
+        return "aop/method";
+    }
+
+    @GetMapping("/pointcutSecured")
+    public String pointcutSecured1(Model model){
+
+        aopPointcutService.notSecured();
+        aopPointcutService.pointcutSecured();
+        model.addAttribute("method", "Success PointcutSecured");
+
         return "aop/method";
     }
 }
