@@ -49,7 +49,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @Slf4j
-@EnableGlobalMethodSecurity(securedEnabled = true)
+//@EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
