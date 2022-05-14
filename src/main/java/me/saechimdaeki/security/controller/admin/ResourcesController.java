@@ -5,7 +5,7 @@ import me.saechimdaeki.security.domain.Resources;
 import me.saechimdaeki.security.domain.Role;
 import me.saechimdaeki.security.domain.dto.ResourcesDto;
 import me.saechimdaeki.security.repository.RoleRepository;
-import me.saechimdaeki.security.security.metadatasource.UrlFilterInvocationSecurityMetadatsSource;
+import me.saechimdaeki.security.security.metadatasource.UrlSecurityMetadataSource;
 import me.saechimdaeki.security.security.service.ResourcesService;
 import me.saechimdaeki.security.security.service.RoleService;
 import org.modelmapper.ModelMapper;
@@ -33,7 +33,7 @@ public class ResourcesController {
 	private RoleService roleService;
 
 	@Autowired
-	private UrlFilterInvocationSecurityMetadatsSource urlSecurityMetadataSource;
+	private UrlSecurityMetadataSource urlSecurityMetadataSource;
 
 	@GetMapping(value="/admin/resources")
 	public String getResources(Model model) throws Exception {
